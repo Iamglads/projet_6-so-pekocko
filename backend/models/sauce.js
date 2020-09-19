@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const sauceSchema = mongoose.Schema({
 
-  
     name :          { type: String, require: true},
     manufacturer :  { type: String, require: true},
     description :   { type: String, require: true},
@@ -13,7 +12,7 @@ const sauceSchema = mongoose.Schema({
     likes :         { type: Number, default: 0},
     dislikes :      { type: Number, default: 0},
     usersLiked :    [{ type: String}],
-    usersDilikes :  [{ type: String}],
+    usersDislikes :  [{ type: String}],
 })
 
 
