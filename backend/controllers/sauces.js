@@ -3,7 +3,6 @@ const fs = require('fs')
 const log = console.log
 
 
-
 // function get all sauces 
 exports.getAllSauces = (req, res, next) => {
     Sauces.find()
@@ -14,7 +13,6 @@ exports.getAllSauces = (req, res, next) => {
         .catch((error) => res.status(400).json(log(error)))
 }
 
-
 // function get one sauce with id
 exports.getOneSauce = (req, res, next) => {
     Sauces.findOne({ _id: req.params.id })
@@ -24,7 +22,6 @@ exports.getOneSauce = (req, res, next) => {
         })
         .catch((error) => res.status(400).json(log(error)))
 }
-
 
 // function to add one sauce and save in mongoDB
 // we need multer to upload image
@@ -52,7 +49,6 @@ exports.postOneSauce = (req, res, next) => {
         .catch((error) => res.status(400).json(log(error)))
 }
 
-
 // function to modify one product with id
 exports.updateOneSauce = (req, res, next) => {
     const sauceObject = req.file ?
@@ -65,16 +61,16 @@ exports.updateOneSauce = (req, res, next) => {
         .catch((error) => res.status(400).json(log(error)));
 }
 
-
 // function to delete one sauce with id 
 exports.deleteOneSauce = (req, res, next) => {
     Sauces.findOne({ _id: req.params.id })
         .then((sauce) => {
             const filename = sauce.imageUrl.split('/images/')[1];
             fs.unlink(`images/${filename}`, () => {
-                Sauces.deleteOne({ _id: req.params.id })
+                Sauces.remove({ _id: req.params.id })
+                    .then(() => res.redirect('/api/sauces'))
                     .then(() => {
-                        res.status(200).json()
+                        res.status(201).json()
                         log('Votre sauce est bien supprimé !')
                     })
                     .catch((error) => res.status(400).json(log(error)))
@@ -82,3 +78,57 @@ exports.deleteOneSauce = (req, res, next) => {
         })
         .catch((error) => res.status(500).json(log(error)))
 }
+
+
+exports.likeSauce = (req, res, next) => {
+
+    const likeSauce = req.body.like
+    const userId = req.body.userId
+    const nameSauce = req.body.name
+    const id = req.params.id
+    //const usersLiked = req.body.usersLiked
+
+
+    switch (likeSauce) {
+        // CAS OU LA SAUCE EST AIMEE AJOUTER 1
+        // AJOUTER LE USER QUI AIME LA SAUCE DANS userLiked
+        case 1:
+            Sauces.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: userId } })
+                .then(() => res.status(200).json(log(`Vous aimez la sauce: ${nameSauce}`)))
+                .catch((error) => res.status(400).json(log(error)))
+            break;
+
+        // CHOIX LA SAUCE N EST PAS AIMEE 
+        // AJOUTER LE USER QUI N'AIME PAS LA SAUCE DANS userDislikes
+        case -1:
+            Sauces.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDislikes: userId } })
+                .then(() => res.status(200).json(log(`Vous n'aimez pas la sauce: ${nameSauce}`)))
+                .catch((error) => res.status(400).json(log(error)))
+            break;
+
+        // CAS CHOIX ANNULE
+        // RETIRER
+        case 0:
+            Sauces.findOne({ _id: req.params.id })
+                .then((sauce) => {
+                    if (sauce.usersLiked.includes(userId)) {
+                        Sauces.updateOne({ _id: id }, { $pull: { usersLiked: userId }, $inc: { likes: -1 } })
+                            .then(() => res.status(200).json(log('Une sauce en  moins dans usersLiked!')))
+                            .catch((error) => res.status(400).json(log(error)))
+                    }
+                    else if (sauce.usersDisliked.includes(userId)) {
+                        Sauces.updateOne({ _id: id }, { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } })
+                            .then(() => res.status(200).json(log('Une sauce en moins dans usersDislikes')))
+                            .catch((error) => res.status(400).json(log(error)))
+                    }
+                    else alert(error)
+                })
+                .catch((error) => res.status(400).json(log(error)))
+            break;
+
+        default:
+            alert(error)
+            break;
+    }
+}
+
