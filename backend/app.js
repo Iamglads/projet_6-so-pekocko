@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const path = require('path')
 const helmet = require('helmet')
+//const session = require('express-session')
 const app = express()
 
 const log = console.log
@@ -35,6 +36,21 @@ mongoose.connect( MONGO_URI, {
 app.use(helmet())
 app.use(bodyParser.json())
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// session 
+
+/* let expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1h
+app.use(session({
+  name: 'session',
+  keys: ['key1', 'key2'],
+  cookie: {
+      secure: true,
+      httpOnly: true,
+      domain: "localhost:4200",
+      path: '/api/sauces',
+      expires: expiryDate
+  }
+})) */
 
 // USE ROUTES
 app.use('/api/auth', userRoute)

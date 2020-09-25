@@ -101,7 +101,7 @@ exports.likeSauce = (req, res, next) => {
         // CHOIX LA SAUCE N EST PAS AIMEE 
         // AJOUTER LE USER QUI N'AIME PAS LA SAUCE DANS userDislikes
         case -1:
-            Sauces.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDislikes: userId } })
+            Sauces.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: userId } })
                 .then(() => res.status(200).json(log(`Vous n'aimez pas la sauce: ${nameSauce}`)))
                 .catch((error) => res.status(400).json(log(error)))
             break;
@@ -113,12 +113,12 @@ exports.likeSauce = (req, res, next) => {
                 .then((sauce) => {
                     if (sauce.usersLiked.includes(userId)) {
                         Sauces.updateOne({ _id: id }, { $pull: { usersLiked: userId }, $inc: { likes: -1 } })
-                            .then(() => res.status(200).json(log('Une sauce en  moins dans usersLiked!')))
+                            .then(() => res.status(200).json(log('Sauce - 1 dans usersLiked')))
                             .catch((error) => res.status(400).json(log(error)))
                     }
-                    else if (sauce.usersDisliked.includes(userId)) {
+                    if (sauce.usersDisliked.includes(userId)) {
                         Sauces.updateOne({ _id: id }, { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } })
-                            .then(() => res.status(200).json(log('Une sauce en moins dans usersDislikes')))
+                            .then(() => res.status(200).json(log('Sauce - 1 dans usersDisliked')))
                             .catch((error) => res.status(400).json(log(error)))
                     }
                     else alert(error)
