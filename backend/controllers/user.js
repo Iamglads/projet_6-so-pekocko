@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+require('dotenv').config()
 
 /*
     Explication 
@@ -11,17 +12,31 @@ const jwt = require('jsonwebtoken');
 */
 
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
+
+    const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-]/
+
+    // nouvelle couche de vérification des inputs 
+    if (req.body.email == null || req.body.password == null) {
+        return res.status(400).json({ 'Error': 'Veuillez remplir tous les champs!'})
+    }
+    else if (!EMAIL_REGEX.test(req.body.email)) {
+        return res.status(400).json({ 'Error': 'Votre email est invalide!'})
+    }
+    else {
+         bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
                 email: req.body.email,
                 password: hash
             });
             user.save()
-                .then(() => res.status(201).json({ message: 'bonjour, Votre compte a été crée avec succès!' }))
+                .then(() => {
+                    res.status(201).json({ message: 'bonjour, Votre compte a été crée avec succès!' }).redirect('/api/auth/login')
+                })
                 .catch(error => res.status(400).json(console.log(error)));
         })
         .catch(error => res.status(400).json({ error }));
+    }
 }
 
 exports.login = (req, res, next) => {
@@ -39,7 +54,7 @@ exports.login = (req, res, next) => {
                             userId: user._id,
                             token: jwt.sign( // la fonction sign de jwt est utilisé pour encoder un nouveau token
                                 { userId: user._id },
-                                'RANDOM_TOKEN_SECRET',
+                                process.env.JWT_TOKEN,
                                 { expiresIn: '2h' }
                             )
                         })
