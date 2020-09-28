@@ -2,12 +2,13 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const path = require('path')
+require('dotenv').config()
 const helmet = require('helmet')
-//const session = require('express-session')
+
 const app = express()
 
 const log = console.log
-
+const session = require('express-session')
 
 // routes
 const userRoute = require('./routes/user')
@@ -24,9 +25,8 @@ app.use((req, res, next) => {
 })
 
 
-const { MONGO_URI} = require('./config')
 //CONNECT MONGOOSE WITH mongoDB
-mongoose.connect( MONGO_URI, {
+mongoose.connect( process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -39,18 +39,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // session 
 
-/* let expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1h
-app.use(session({
-  name: 'session',
-  keys: ['key1', 'key2'],
-  cookie: {
-      secure: true,
-      httpOnly: true,
-      domain: "localhost:4200",
-      path: '/api/sauces',
-      expires: expiryDate
-  }
-})) */
+
 
 // USE ROUTES
 app.use('/api/auth', userRoute)
