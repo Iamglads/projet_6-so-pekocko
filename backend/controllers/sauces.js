@@ -121,9 +121,8 @@ exports.likeSauce = (req, res, next) => {
                             .then(() => res.status(200).json(log('Sauce - 1 dans usersDisliked')))
                             .catch((error) => res.status(400).json(log(error)))
                     }
-                    else alert(error)
                 })
-                .catch((error) => res.status(400).json(log(error)))
+                .catch((error) => res.status(500).json(log(error)))
             break;
 
         default:
