@@ -2,10 +2,14 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const path = require('path')
-require('dotenv').config()
+// HELMET 
 const helmet = require('helmet')
 
+// APPLICATION EXPRESS
 const app = express()
+
+require('dotenv').config()
+
 
 const log = console.log
 const session = require('express-session')
@@ -13,7 +17,6 @@ const session = require('express-session')
 // routes
 const userRoute = require('./routes/user')
 const saucesRoute = require('./routes/sauces')
-
 
 
 // CONFIGURATION CORS
@@ -33,12 +36,12 @@ mongoose.connect( process.env.MONGO_URI, {
 .then(() => log('Connecté à mongoDB! :)'))
 .catch(() => log('Connexion à mongoDB échouée!'))
 
+// security HTTP headers
 app.use(helmet())
+
+
 app.use(bodyParser.json())
 app.use('/images', express.static(path.join(__dirname, 'images')));
-
-// session 
-
 
 
 // USE ROUTES

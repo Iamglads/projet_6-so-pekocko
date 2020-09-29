@@ -30,9 +30,7 @@ exports.signup = (req, res, next) => {
                 password: hash
             });
             user.save()
-                .then(() => {
-                    res.status(201).json({ message: 'bonjour, Votre compte a été crée avec succès!' }).redirect('/api/auth/login')
-                })
+                .then(() => res.status(201).json({ message: 'bonjour, Votre compte a été crée avec succès!' }))
                 .catch(error => res.status(400).json(console.log(error)));
         })
         .catch(error => res.status(400).json({ error }));
